@@ -282,6 +282,8 @@ function App() {
       calculateRoute();
     }
   };
+
+  const reportIncident = async () => {
     if (!newIncident.location || !newIncident.description) {
       alert('Veuillez cliquer sur la carte et ajouter une description');
       return;
