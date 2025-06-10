@@ -229,7 +229,58 @@ function App() {
     }
   };
 
-  const reportIncident = async () => {
+  // Simulation mode functions
+  const calculateRouteSimulation = async () => {
+    console.log('Calculating route in simulation mode...', { origin, destination });
+    setIsLoading(true);
+    
+    try {
+      // Appel API pour la suggestion IA (même logique)
+      const aiResponse = await axios.post(`${API}/route`, {
+        origin,
+        destination
+      });
+      
+      // Simulation d'un tracé de route
+      const simulatedRoute = {
+        ...aiResponse.data,
+        simulationData: {
+          polyline: generateSimulatedPolyline(),
+          markers: [
+            { lat: 5.3198, lng: -4.0200, label: 'Départ' },
+            { lat: 5.3547, lng: -3.9868, label: 'Arrivée' }
+          ]
+        }
+      };
+      
+      setCurrentRoute(simulatedRoute);
+      setIsLoading(false);
+      
+    } catch (error) {
+      alert('Erreur lors du calcul de l\'itinéraire. Veuillez réessayer.');
+      setIsLoading(false);
+    }
+  };
+
+  const generateSimulatedPolyline = () => {
+    // Génère des points pour simuler un trajet à Abidjan
+    return [
+      { lat: 5.3198, lng: -4.0200 },
+      { lat: 5.3250, lng: -4.0150 },
+      { lat: 5.3300, lng: -4.0100 },
+      { lat: 5.3400, lng: -4.0050 },
+      { lat: 5.3450, lng: -3.9950 },
+      { lat: 5.3547, lng: -3.9868 }
+    ];
+  };
+
+  const handleCalculateRoute = () => {
+    if (simulationMode) {
+      calculateRouteSimulation();
+    } else {
+      calculateRoute();
+    }
+  };
     if (!newIncident.location || !newIncident.description) {
       alert('Veuillez cliquer sur la carte et ajouter une description');
       return;
