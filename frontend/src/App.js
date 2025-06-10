@@ -83,8 +83,13 @@ function App() {
   };
 
   const initializeMap = () => {
-    if (!mapRef.current || !config) return;
+    console.log('Initializing map...', { mapRef: !!mapRef.current, config: !!config });
+    if (!mapRef.current || !config) {
+      console.warn('Map initialization failed - missing mapRef or config');
+      return;
+    }
 
+    console.log('Creating Google Maps instance...');
     const mapInstance = new window.google.maps.Map(mapRef.current, {
       center: config.default_center,
       zoom: config.default_zoom,
@@ -98,9 +103,11 @@ function App() {
     });
 
     // Activer la couche de trafic
+    console.log('Adding traffic layer...');
     const trafficLayer = new window.google.maps.TrafficLayer();
     trafficLayer.setMap(mapInstance);
 
+    console.log('Setting up directions service...');
     const directionsServiceInstance = new window.google.maps.DirectionsService();
     const directionsRendererInstance = new window.google.maps.DirectionsRenderer({
       draggable: true,
@@ -124,6 +131,8 @@ function App() {
         }));
       }
     });
+
+    console.log('Map initialization complete!');
   };
 
   const loadTrafficZones = async () => {
