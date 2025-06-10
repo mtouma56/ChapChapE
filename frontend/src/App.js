@@ -36,14 +36,22 @@ function App() {
     initializeApp();
   }, []);
 
+  // Initialiser Google Maps seulement quand la config est chargée
+  useEffect(() => {
+    if (config && config.google_maps_api_key) {
+      console.log('Config loaded, initializing Google Maps...', config);
+      loadGoogleMaps(config.google_maps_api_key);
+    }
+  }, [config]);
+
   const initializeApp = async () => {
     try {
+      console.log('Starting app initialization...');
+      
       // Récupérer la config
       const configResponse = await axios.get(`${API}/config`);
+      console.log('Config received:', configResponse.data);
       setConfig(configResponse.data);
-      
-      // Charger Google Maps
-      loadGoogleMaps(configResponse.data.google_maps_api_key);
       
       // Charger les données initiales
       await Promise.all([
@@ -51,6 +59,8 @@ function App() {
         loadIncidents(),
         loadRouteHistory()
       ]);
+      
+      console.log('App initialization complete');
       
     } catch (error) {
       console.error('Erreur lors de l\'initialisation:', error);
