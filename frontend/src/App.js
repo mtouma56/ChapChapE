@@ -154,18 +154,31 @@ function App() {
   };
 
   const calculateRoute = async () => {
-    if (!origin || !destination || !directionsService || !directionsRenderer) return;
+    if (!origin || !destination || !directionsService || !directionsRenderer) {
+      console.warn('Missing required data for route calculation:', {
+        origin: !!origin, 
+        destination: !!destination, 
+        directionsService: !!directionsService, 
+        directionsRenderer: !!directionsRenderer
+      });
+      return;
+    }
     
+    console.log('Starting route calculation...', { origin, destination });
     setIsLoading(true);
     
     try {
       // Appel API pour la suggestion IA
+      console.log('Calling backend API for AI suggestion...');
       const aiResponse = await axios.post(`${API}/route`, {
         origin,
         destination
       });
       
+      console.log('AI Response received:', aiResponse.data);
+      
       // Calcul Google Maps
+      console.log('Calculating Google Maps route...');
       directionsService.route({
         origin,
         destination,
@@ -173,13 +186,17 @@ function App() {
         avoidHighways: false,
         avoidTolls: false
       }, (result, status) => {
+        console.log('Google Maps response:', { status, result });
         if (status === 'OK') {
           directionsRenderer.setDirections(result);
-          setCurrentRoute({
+          const routeData = {
             ...aiResponse.data,
             googleMapsResult: result
-          });
+          };
+          console.log('Setting current route:', routeData);
+          setCurrentRoute(routeData);
         } else {
+          console.error('Google Maps route calculation failed:', status);
           alert('Impossible de calculer l\'itinéraire: ' + status);
         }
         setIsLoading(false);
@@ -187,6 +204,7 @@ function App() {
 
     } catch (error) {
       console.error('Erreur calcul route:', error);
+      alert('Erreur lors du calcul de l\'itinéraire. Veuillez réessayer.');
       setIsLoading(false);
     }
   };
