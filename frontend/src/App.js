@@ -28,6 +28,7 @@ function App() {
   // UI states
   const [activeTab, setActiveTab] = useState('route');
   const [isLoading, setIsLoading] = useState(false);
+  const [simulationMode, setSimulationMode] = useState(false); // Mode simulation
   
   const mapRef = useRef(null);
 
