@@ -38,13 +38,13 @@ function App() {
     initializeApp();
   }, []);
 
-  // Initialiser Google Maps seulement quand la config est chargée
+  // Initialiser Google Maps seulement quand la config est chargée et pas en mode simulation
   useEffect(() => {
-    if (config && config.google_maps_api_key) {
+    if (config && config.google_maps_api_key && !simulationMode) {
       console.log('Config loaded, initializing Google Maps...', config);
       loadGoogleMaps(config.google_maps_api_key);
     }
-  }, [config]);
+  }, [config, simulationMode]);
 
   const initializeApp = async () => {
     try {
@@ -216,6 +216,7 @@ function App() {
           };
           console.log('Setting current route:', routeData);
           setCurrentRoute(routeData);
+          loadRouteHistory(); // Refresh history
         } else {
           console.error('Google Maps route calculation failed:', status);
           alert('Impossible de calculer l\'itinéraire: ' + status);
@@ -255,6 +256,7 @@ function App() {
       };
       
       setCurrentRoute(simulatedRoute);
+      loadRouteHistory(); // Refresh history
       setIsLoading(false);
       
     } catch (error) {
@@ -283,189 +285,15 @@ function App() {
     }
   };
 
-  const reportIncident = async () => {
-    if (!newIncident.location || !newIncident.description) {
-      alert('Veuillez cliquer sur la carte et ajouter une description');
-      return;
-    }
-
-    try {
-      await axios.post(`${API}/incidents`, {
-        ...newIncident,
-        reporter_id: 'user_' + Date.now()
-      });
-      
-      setNewIncident({
-        type: 'embouteillage',
-        description: '',
-        location: null
-      });
-      setShowIncidentForm(false);
-      
-      // Recharger les incidents
-      await loadIncidents();
-      
-    } catch (error) {
-      console.error('Erreur signalement incident:', error);
-    }
-  };
-
-  // Simulation mode functions
-  const calculateRouteSimulation = async () => {
-    console.log('Calculating route in simulation mode...', { origin, destination });
-    setIsLoading(true);
-    
-    try {
-      // Appel API pour la suggestion IA (même logique)
-      const aiResponse = await axios.post(`${API}/route`, {
-        origin,
-        destination
-      });
-      
-      // Simulation d'un tracé de route
-      const simulatedRoute = {
-        ...aiResponse.data,
-        simulationData: {
-          polyline: generateSimulatedPolyline(),
-          markers: [
-            { lat: 5.3198, lng: -4.0200, label: 'Départ' },
-            { lat: 5.3547, lng: -3.9868, label: 'Arrivée' }
-          ]
+  const handleMapClick = (event) => {
+    if (showIncidentForm) {
+      setNewIncident(prev => ({
+        ...prev,
+        location: {
+          lat: event.latLng.lat(),
+          lng: event.latLng.lng()
         }
-      };
-      
-      setCurrentRoute(simulatedRoute);
-      setIsLoading(false);
-      
-    } catch (error) {
-      alert('Erreur lors du calcul de l\'itinéraire. Veuillez réessayer.');
-      setIsLoading(false);
-    }
-  };
-
-  const generateSimulatedPolyline = () => {
-    // Génère des points pour simuler un trajet à Abidjan
-    return [
-      { lat: 5.3198, lng: -4.0200 },
-      { lat: 5.3250, lng: -4.0150 },
-      { lat: 5.3300, lng: -4.0100 },
-      { lat: 5.3400, lng: -4.0050 },
-      { lat: 5.3450, lng: -3.9950 },
-      { lat: 5.3547, lng: -3.9868 }
-    ];
-  };
-
-  const handleCalculateRoute = () => {
-    if (simulationMode) {
-      calculateRouteSimulation();
-    } else {
-      calculateRoute();
-    }
-  };
-
-  // Simulation mode functions
-  const calculateRouteSimulation = async () => {
-    console.log('Calculating route in simulation mode...', { origin, destination });
-    setIsLoading(true);
-    
-    try {
-      // Appel API pour la suggestion IA (même logique)
-      const aiResponse = await axios.post(`${API}/route`, {
-        origin,
-        destination
-      });
-      
-      // Simulation d'un tracé de route
-      const simulatedRoute = {
-        ...aiResponse.data,
-        simulationData: {
-          polyline: generateSimulatedPolyline(),
-          markers: [
-            { lat: 5.3198, lng: -4.0200, label: 'Départ' },
-            { lat: 5.3547, lng: -3.9868, label: 'Arrivée' }
-          ]
-        }
-      };
-      
-      setCurrentRoute(simulatedRoute);
-      setIsLoading(false);
-      
-    } catch (error) {
-      alert('Erreur lors du calcul de l\'itinéraire. Veuillez réessayer.');
-      setIsLoading(false);
-    }
-  };
-
-  const generateSimulatedPolyline = () => {
-    // Génère des points pour simuler un trajet à Abidjan
-    return [
-      { lat: 5.3198, lng: -4.0200 },
-      { lat: 5.3250, lng: -4.0150 },
-      { lat: 5.3300, lng: -4.0100 },
-      { lat: 5.3400, lng: -4.0050 },
-      { lat: 5.3450, lng: -3.9950 },
-      { lat: 5.3547, lng: -3.9868 }
-    ];
-  };
-
-  const handleCalculateRoute = () => {
-    if (simulationMode) {
-      calculateRouteSimulation();
-    } else {
-      calculateRoute();
-    }
-  };
-
-  // Simulation mode functions
-  const calculateRouteSimulation = async () => {
-    console.log('Calculating route in simulation mode...', { origin, destination });
-    setIsLoading(true);
-    
-    try {
-      // Appel API pour la suggestion IA (même logique)
-      const aiResponse = await axios.post(`${API}/route`, {
-        origin,
-        destination
-      });
-      
-      // Simulation d'un tracé de route
-      const simulatedRoute = {
-        ...aiResponse.data,
-        simulationData: {
-          polyline: generateSimulatedPolyline(),
-          markers: [
-            { lat: 5.3198, lng: -4.0200, label: 'Départ' },
-            { lat: 5.3547, lng: -3.9868, label: 'Arrivée' }
-          ]
-        }
-      };
-      
-      setCurrentRoute(simulatedRoute);
-      setIsLoading(false);
-      
-    } catch (error) {
-      alert('Erreur lors du calcul de l\'itinéraire. Veuillez réessayer.');
-      setIsLoading(false);
-    }
-  };
-
-  const generateSimulatedPolyline = () => {
-    // Génère des points pour simuler un trajet à Abidjan
-    return [
-      { lat: 5.3198, lng: -4.0200 },
-      { lat: 5.3250, lng: -4.0150 },
-      { lat: 5.3300, lng: -4.0100 },
-      { lat: 5.3400, lng: -4.0050 },
-      { lat: 5.3450, lng: -3.9950 },
-      { lat: 5.3547, lng: -3.9868 }
-    ];
-  };
-
-  const handleCalculateRoute = () => {
-    if (simulationMode) {
-      calculateRouteSimulation();
-    } else {
-      calculateRoute();
+      }));
     }
   };
 
@@ -544,9 +372,29 @@ function App() {
                 <p className="text-orange-100 text-sm">Trafic d'Abidjan</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-orange-100">Temps réel</p>
-              <p className="font-semibold">{new Date().toLocaleTimeString('fr-FR')}</p>
+            <div className="flex items-center space-x-4">
+              {/* Toggle Mode */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-orange-100">
+                  {simulationMode ? '🎮 Simulation' : '🗺️ Google Maps'}
+                </span>
+                <button
+                  onClick={() => setSimulationMode(!simulationMode)}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    simulationMode ? 'bg-orange-400' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      simulationMode ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-orange-100">Temps réel</p>
+                <p className="font-semibold">{new Date().toLocaleTimeString('fr-FR')}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -624,7 +472,7 @@ function App() {
                     </div>
                     
                     <button
-                      onClick={calculateRoute}
+                      onClick={handleCalculateRoute}
                       disabled={isLoading || !origin || !destination}
                       className="w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     >
@@ -634,14 +482,16 @@ function App() {
                           Calcul...
                         </>
                       ) : (
-                        'Calculer l\'itinéraire'
+                        `Calculer l'itinéraire ${simulationMode ? '(Simulation)' : '(Google Maps)'}`
                       )}
                     </button>
 
                     {/* Résultat de la route */}
                     {currentRoute && (
                       <div className="mt-4 p-4 bg-orange-50 rounded-lg">
-                        <h3 className="font-semibold text-orange-800 mb-2">Résultat</h3>
+                        <h3 className="font-semibold text-orange-800 mb-2">
+                          Résultat {simulationMode && '(Mode Simulation)'}
+                        </h3>
                         <div className="space-y-2 text-sm">
                           <p><span className="font-medium">Durée:</span> {currentRoute.duration_text}</p>
                           <p><span className="font-medium">Distance:</span> {currentRoute.distance_text}</p>
@@ -795,11 +645,23 @@ function App() {
           {/* Carte */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div 
-                ref={mapRef} 
-                style={{ height: '600px', width: '100%' }}
-                className="rounded-lg"
-              />
+              {simulationMode ? (
+                <div style={{ height: '600px', width: '100%' }}>
+                  <SimulatedMap 
+                    trafficZones={trafficZones}
+                    currentRoute={currentRoute}
+                    newIncident={newIncident}
+                    showIncidentForm={showIncidentForm}
+                    onMapClick={handleMapClick}
+                  />
+                </div>
+              ) : (
+                <div 
+                  ref={mapRef} 
+                  style={{ height: '600px', width: '100%' }}
+                  className="rounded-lg"
+                />
+              )}
             </div>
           </div>
         </div>
