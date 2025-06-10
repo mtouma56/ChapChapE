@@ -58,11 +58,21 @@ function App() {
   };
 
   const loadGoogleMaps = (apiKey) => {
-    if (window.google) {
+    if (window.google && window.google.maps) {
+      console.log('Google Maps already loaded, initializing map...');
       initializeMap();
       return;
     }
 
+    // Check if script is already being loaded
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (existingScript) {
+      console.log('Google Maps script already exists, waiting for load...');
+      existingScript.onload = initializeMap;
+      return;
+    }
+
+    console.log('Loading Google Maps API...');
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&callback=initMap`;
     script.async = true;
