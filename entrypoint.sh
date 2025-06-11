@@ -9,13 +9,23 @@ echo "Starting FastAPI backend"
 uvicorn server:app --host 0.0.0.0 --port 8001 &
 BACKEND_PID=$!
 
-echo "Waiting for backend to start..."
-sleep 30
-
-if ! kill -0 $BACKEND_PID 2>/dev/null; then
-    echo "Backend failed to start at initialization, exiting"
-    exit 1
-fi
+echo "Waiting for backend to respond..."
+MAX_ATTEMPTS=30
+ATTEMPT=0
+until curl -fs http://localhost:8001/api/ >/dev/null 2>&1; do
+    if ! kill -0 $BACKEND_PID 2>/dev/null; then
+        echo "Backend process exited before responding"
+        exit 1
+    fi
+    ATTEMPT=$((ATTEMPT+1))
+    if [ "$ATTEMPT" -ge "$MAX_ATTEMPTS" ]; then
+        echo "Backend failed to respond after $MAX_ATTEMPTS attempts"
+        kill $BACKEND_PID
+        exit 1
+    fi
+    sleep 1
+done
+echo "Backend is up"
 
 # Start Nginx
 nginx -g 'daemon off;' &
