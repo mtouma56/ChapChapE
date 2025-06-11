@@ -76,7 +76,6 @@ REACT_APP_BACKEND_URL=http://localhost:8000
 ### Backend (`backend/.env`)
 
 ```env
-
 MONGO_URL=mongodb+srv://user:pass@cluster.mongodb.net/chapchap
 DB_NAME=chapchap
 ALLOWED_ORIGINS=http://localhost:3000
