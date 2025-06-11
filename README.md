@@ -77,7 +77,7 @@ REACT_APP_API_BASE_URL=http://localhost:8000
 
 ```env
 MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/chapchap
-ALLOWED_ORIGINS=http://localhost:3000
+ALLOWED_ORIGINS=http://localhost:3000  # defaut "*", séparer par des virgules
 ```
 
 ---
