@@ -48,7 +48,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env  # ajouter vos variables API
-uvicorn main:app --reload
+uvicorn server:app --reload
 ```
 
 ---
