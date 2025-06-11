@@ -48,7 +48,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env  # ajouter MONGO_URL, DB_NAME et GOOGLE_MAPS_API_KEY
-uvicorn main:app --reload
+uvicorn backend.server:app --reload
 ```
 
 ---
