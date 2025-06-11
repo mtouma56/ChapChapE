@@ -19,6 +19,10 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# CORS allowed origins
+allowed_origins_env = os.getenv('ALLOWED_ORIGINS', '*')
+ALLOWED_ORIGINS = [origin.strip() for origin in allowed_origins_env.split(',') if origin]
+
 # Create the main app without a prefix
 app = FastAPI(title="ChapChap API", description="API pour l'optimisation du trafic à Abidjan")
 
@@ -252,7 +256,7 @@ app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )

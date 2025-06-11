@@ -47,8 +47,8 @@ cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env  # renseigner MONGO_URL, DB_NAME, GOOGLE_MAPS_API_KEY
-uvicorn main:app --reload
+cp .env.example .env  # ajouter MONGO_URL, DB_NAME et GOOGLE_MAPS_API_KEY
+uvicorn backend.server:app --reload
 ```
 
 ---
@@ -58,7 +58,7 @@ uvicorn main:app --reload
 ```bash
 cd frontend
 npm install
-cp .env.example .env  # renseigner REACT_APP_BACKEND_URL
+cp .env.example .env  # ajouter REACT_APP_GOOGLE_MAPS_API_KEY et REACT_APP_BACKEND_URL
 npm start
 ```
 
@@ -69,16 +69,16 @@ npm start
 ### Frontend (`frontend/.env`)
 
 ```env
+REACT_APP_GOOGLE_MAPS_API_KEY=your_api_key_here
 REACT_APP_BACKEND_URL=http://localhost:8000
-WDS_SOCKET_PORT=443
 ```
 
 ### Backend (`backend/.env`)
 
 ```env
-MONGO_URL=mongodb://localhost:27017
-DB_NAME=chapchap_db
-GOOGLE_MAPS_API_KEY=your_api_key_here
+MONGO_URL=mongodb+srv://user:pass@cluster.mongodb.net/chapchap
+DB_NAME=chapchap
+ALLOWED_ORIGINS=http://localhost:3000
 ```
 
 ---
